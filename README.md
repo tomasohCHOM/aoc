@@ -1,13 +1,21 @@
-# Advent Of Code 2023 Solutions (in Rust)
+# Advent Of Code 2023 Solutions
 
-This repo contains all my solutions for Advent of Code 2023 while trying to learn Rust!
+This repo contains all my solutions for Advent of Code 2023. Day 1 was done in Rust, but I figured it was too hard (since it's a new programming language to me), so I continued the rest with Python.
 
-## Usage
+To compile and run the day 1 solution, run the following commands:
 
-To compile and run each of the Rust programs, go to the folder location by running:
+```bash
+cd day1
+cargo run
+```
 
-`cd day-1` (for example)
+For any other day (day 2, for example), run:
 
-... and run it with: `cargo run`
+```bash
+cd day2
+python main.py
+```
+
+(BTW these solutions are pretty nasty, I apologize in advance.)
 
 **Thanks for stopping by!**
