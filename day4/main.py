@@ -1,4 +1,4 @@
-f = open("input2.dat", "r")
+f = open("input.dat", "r")
 lines = [x[:-1] for x in f.readlines()]
 f.close()
 
@@ -26,10 +26,9 @@ def play(line_idx):
     for num in game.split(" | ")[1].split():
         if num in winning_nums:
             i += 1
-    print(f"Card copies for {line_idx}: {i}")
     for j in range(i):
         res += play(line_idx + j + 1)
-    return 1
+    return res + 1
 
 
 def part2():
