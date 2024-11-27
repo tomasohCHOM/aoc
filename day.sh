@@ -19,8 +19,11 @@ if [ $YEAR -lt 2015 ]; then
     exit 1
 fi
 
+# Zero-pad the day for the directory
+DAY_PADDED=$(printf "%02d" $DAY)
+
 # Make dir & files
-day_dir=$(dirname $(realpath $0))/$YEAR/day$DAY
+day_dir=$(dirname $(realpath $0))/$YEAR/day$DAY_PADDED
 if [ ! -d $day_dir ]; then
     mkdir -p $day_dir
 fi
