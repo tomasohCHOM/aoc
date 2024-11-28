@@ -7,11 +7,30 @@ import (
 )
 
 func part1(input []string) int {
-	return 0
+	floor := 0
+	for i := 0; i < len(input[0]); i++ {
+		if input[0][i] == '(' {
+			floor++
+		} else {
+			floor--
+		}
+	}
+	return floor
 }
 
 func part2(input []string) int {
-	return 0
+	floor := 0
+	for i, r := range input[0] {
+		if r == '(' {
+			floor++
+		} else {
+			floor--
+		}
+		if floor == -1 {
+			return i + 1
+		}
+	}
+	return -1
 }
 
 func readInput(filename string) ([]string, error) {
