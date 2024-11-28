@@ -18,10 +18,10 @@ var dirs = map[rune][2]int{
 	'>': {0, 1},
 }
 
-func part1(input []string) int {
+func part1(input string) int {
 	visitedHouses := map[position]bool{{0, 0}: true}
 	r, c := 0, 0
-	for _, char := range input[0] {
+	for _, char := range input {
 		newDir := dirs[char]
 		r, c = r+newDir[0], c+newDir[1]
 		pos := position{r, c}
@@ -33,11 +33,11 @@ func part1(input []string) int {
 	return len(visitedHouses)
 }
 
-func part2(input []string) int {
+func part2(input string) int {
 	visitedHouses := map[position]bool{{0, 0}: true}
 	santaR, santaC := 0, 0
 	robotR, robotC := 0, 0
-	for i, char := range input[0] {
+	for i, char := range input {
 		newDir := dirs[char]
 		if i%2 == 0 { // Santa
 			santaR, santaC = santaR+newDir[0], santaC+newDir[1]
@@ -84,6 +84,6 @@ func main() {
 		fmt.Println("Error reading input:", err)
 		return
 	}
-	fmt.Println("Part 1:", part1(input))
-	fmt.Println("Part 2:", part2(input))
+	fmt.Println("Part 1:", part1(input[0]))
+	fmt.Println("Part 2:", part2(input[0]))
 }

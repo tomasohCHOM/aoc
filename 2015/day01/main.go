@@ -6,10 +6,10 @@ import (
 	"os"
 )
 
-func part1(input []string) int {
+func part1(input string) int {
 	floor := 0
-	for i := 0; i < len(input[0]); i++ {
-		if input[0][i] == '(' {
+	for i := 0; i < len(input); i++ {
+		if input[i] == '(' {
 			floor++
 		} else {
 			floor--
@@ -18,9 +18,9 @@ func part1(input []string) int {
 	return floor
 }
 
-func part2(input []string) int {
+func part2(input string) int {
 	floor := 0
-	for i, r := range input[0] {
+	for i, r := range input {
 		if r == '(' {
 			floor++
 		} else {
@@ -59,6 +59,6 @@ func main() {
 		fmt.Println("Error reading input:", err)
 		return
 	}
-	fmt.Println("Part 1:", part1(input))
-	fmt.Println("Part 2:", part2(input))
+	fmt.Println("Part 1:", part1(input[0]))
+	fmt.Println("Part 2:", part2(input[0]))
 }

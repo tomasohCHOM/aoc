@@ -9,22 +9,11 @@ import (
 	"strings"
 )
 
-func part1(input []string) int {
+func findHashWithPrefix(input string, prefix string) int {
 	for i := 0; i < math.MaxInt32; i++ {
-		toHash := fmt.Sprintf("%s%d", input[0], i)
+		toHash := fmt.Sprintf("%s%d", input, i)
 		hashed := fmt.Sprintf("%x", md5.Sum([]byte(toHash)))
-		if strings.HasPrefix(hashed, "00000") {
-			return i
-		}
-	}
-	panic("No hash found")
-}
-
-func part2(input []string) int {
-	for i := 0; i < math.MaxInt32; i++ {
-		toHash := fmt.Sprintf("%s%d", input[0], i)
-		hashed := fmt.Sprintf("%x", md5.Sum([]byte(toHash)))
-		if strings.HasPrefix(hashed, "000000") {
+		if strings.HasPrefix(hashed, prefix) {
 			return i
 		}
 	}
@@ -57,6 +46,6 @@ func main() {
 		fmt.Println("Error reading input:", err)
 		return
 	}
-	fmt.Println("Part 1:", part1(input))
-	fmt.Println("Part 2:", part2(input))
+	fmt.Println("Part 1:", findHashWithPrefix(input[0], "00000"))
+	fmt.Println("Part 2:", findHashWithPrefix(input[0], "000000"))
 }
