@@ -10,29 +10,48 @@ import (
 var vowels = []byte{'a', 'e', 'i', 'o', 'u'}
 var invalidStrings = []string{"ab", "cd", "pq", "xy"}
 
-func isStringNice(str string) bool {
+func isStringNice1(str string) bool {
 	vowelCount, containsDouble := 0, false
-	if slices.Contains(vowels, str[0]) {
-		vowelCount++
-	}
-	for i := 1; i < len(str); i++ {
+	for i := 0; i < len(str); i++ {
 		if slices.Contains(vowels, str[i]) {
 			vowelCount++
 		}
-		if str[i] == str[i-1] {
+		if i != 0 && str[i] == str[i-1] {
 			containsDouble = true
 		}
-		if slices.Contains(invalidStrings, string(str[i-1])+string(str[i])) {
+		if i != 0 && slices.Contains(invalidStrings, string(str[i-1])+string(str[i])) {
 			return false
 		}
 	}
 	return vowelCount >= 3 && containsDouble
 }
 
+func isStringNice2(str string) bool {
+	hasDuplicatePair := false
+	hasSurrounding := false
+	pairs := map[string]int{}
+
+	for i := 0; i < len(str); i++ {
+		if i > 1 && str[i-2] == str[i] {
+			hasSurrounding = true
+		}
+		if i > 0 {
+			pair := string(str[i-1]) + string(str[i])
+			index, ok := pairs[pair]
+			if !ok {
+				pairs[pair] = i
+			} else if i > index+1 {
+				hasDuplicatePair = true
+			}
+		}
+	}
+	return hasDuplicatePair && hasSurrounding
+}
+
 func part1(input []string) int {
 	output := 0
 	for _, str := range input {
-		if isStringNice(str) {
+		if isStringNice1(str) {
 			output += 1
 		}
 	}
@@ -40,7 +59,13 @@ func part1(input []string) int {
 }
 
 func part2(input []string) int {
-	return 0
+	output := 0
+	for _, str := range input {
+		if isStringNice2(str) {
+			output += 1
+		}
+	}
+	return output
 }
 
 func readInput(filename string) ([]string, error) {
