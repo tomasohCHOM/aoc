@@ -6,11 +6,6 @@ import (
 	"os"
 )
 
-type tuple struct {
-	first  int
-	second int
-}
-
 func part1(input []string) int {
 	M, N := len(input), len(input[0])
 	output, word := 0, "XMAS"
