@@ -8,18 +8,13 @@ import (
 	"strings"
 )
 
-func getStones(input string) []int {
+func part1(input string) int {
 	parsedLine := strings.Split(input, " ")
 	stones := []int{}
 	for _, elem := range parsedLine {
 		val, _ := strconv.Atoi(elem)
 		stones = append(stones, val)
 	}
-	return stones
-}
-
-func part1(input string) int {
-	stones := getStones(input)
 	for i := 0; i < 25; i++ {
 		newStones := []int{}
 		for _, stone := range stones {
