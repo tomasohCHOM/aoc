@@ -11,8 +11,11 @@ type coords struct {
 	r, c int
 }
 
+func inBounds(r, c int, input []string) bool {
+	return r >= 0 && c >= 0 && r < len(input) && c < len(input[0])
+}
+
 func bfs1(r, c int, char byte, seen map[coords]bool, input []string) (int, int) {
-	M, N := len(input), len(input[0])
 	q := list.New()
 	q.PushBack([2]int{r, c})
 	area, perimeter := 0, 0
@@ -20,7 +23,7 @@ func bfs1(r, c int, char byte, seen map[coords]bool, input []string) (int, int) 
 	for q.Len() > 0 {
 		curr := q.Remove(q.Front()).([2]int)
 		r, c := curr[0], curr[1]
-		if r < 0 || c < 0 || r >= M || c >= N || input[r][c] != char {
+		if !inBounds(r, c, input) || input[r][c] != char {
 			perimeter++
 			continue
 		}
@@ -37,32 +40,6 @@ func bfs1(r, c int, char byte, seen map[coords]bool, input []string) (int, int) 
 	return area, perimeter
 }
 
-func bfs2(r, c int, char byte, seen map[coords]bool, input []string) (int, int) {
-	M, N := len(input), len(input[0])
-	q := list.New()
-	q.PushBack([2]int{r, c})
-	area, edges := 0, 0
-
-	for q.Len() > 0 {
-		curr := q.Remove(q.Front()).([2]int)
-		r, c := curr[0], curr[1]
-		if r < 0 || c < 0 || r >= M || c >= N || input[r][c] != char {
-			edges++
-			continue
-		}
-		if seen[coords{r, c}] {
-			continue
-		}
-		seen[coords{r, c}] = true
-		area++
-		for _, newCoords := range [][]int{{r - 1, c}, {r + 1, c}, {r, c - 1}, {r, c + 1}} {
-			nr, nc := newCoords[0], newCoords[1]
-			q.PushBack([2]int{nr, nc})
-		}
-	}
-	return area, edges
-}
-
 func part1(input []string) int {
 	output := 0
 	seen := map[coords]bool{}
@@ -73,6 +50,64 @@ func part1(input []string) int {
 		}
 	}
 	return output
+}
+
+func getEdges(r, c int, char byte, input []string) int {
+	edges := 0
+
+	isOutsideCorner := func(dr1, dc1, dr2, dc2 int) bool {
+		return ((!inBounds(r+dr1, c+dc1, input) || input[r+dr1][c+dc1] != char) &&
+			(!inBounds(r+dr2, c+dc2, input) || input[r+dr2][c+dc2] != char))
+	}
+
+	isInsideCorner := func(dr1, dc1, dr2, dc2 int) bool {
+		return ((inBounds(r+dr1, c+dc1, input) && input[r+dr1][c+dc1] == char) &&
+			(inBounds(r+dr2, c+dc2, input) && input[r+dr2][c+dc2] == char) &&
+			(!inBounds(r+dr1+dr2, c+dc1+dc2, input) || input[r+dr1+dr2][c+dc1+dc2] != char))
+	}
+
+	cornerDeltas := [][]int{
+		{1, 0, 0, 1},
+		{1, 0, 0, -1},
+		{-1, 0, 0, 1},
+		{-1, 0, 0, -1},
+	}
+	for _, deltas := range cornerDeltas {
+		dr1, dc1, dr2, dc2 := deltas[0], deltas[1], deltas[2], deltas[3]
+		if isOutsideCorner(dr1, dc1, dr2, dc2) {
+			edges++
+		}
+		if isInsideCorner(dr1, dc1, dr2, dc2) {
+			edges++
+		}
+	}
+	return edges
+}
+
+func bfs2(r, c int, char byte, seen map[coords]bool, input []string) (int, int) {
+	q := list.New()
+	q.PushBack([2]int{r, c})
+	area, edges := 0, 0
+
+	for q.Len() > 0 {
+		curr := q.Remove(q.Front()).([2]int)
+		r, c := curr[0], curr[1]
+		if !inBounds(r, c, input) || input[r][c] != char {
+			continue
+		}
+		if seen[coords{r, c}] {
+			continue
+		}
+		seen[coords{r, c}] = true
+		area++
+		edges += getEdges(r, c, char, input)
+
+		for _, newCoords := range [][]int{{r - 1, c}, {r + 1, c}, {r, c - 1}, {r, c + 1}} {
+			nr, nc := newCoords[0], newCoords[1]
+			q.PushBack([2]int{nr, nc})
+		}
+	}
+	return area, edges
 }
 
 func part2(input []string) int {
