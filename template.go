@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"os"
 )
@@ -35,7 +36,14 @@ func readInput(filename string) ([]string, error) {
 }
 
 func main() {
-	input, err := readInput("input.txt")
+	useSample := flag.Bool("use-sample", false, "Use sample.txt (manually filled in)")
+	flag.Parse()
+	fileName := "input.txt"
+	if *useSample {
+		fmt.Println("USING SAMPLE INPUT FILE")
+		fileName = "sample.txt"
+	}
+	input, err := readInput(fileName)
 	if err != nil {
 		fmt.Println("Error reading input:", err)
 		return

@@ -28,13 +28,15 @@ if [ ! -d $day_dir ]; then
     mkdir -p $day_dir
 fi
 
-# Copy template.go if it doesn't exist
+# Create files if they don't exist
 if [ ! -f $day_dir/main.go ]; then
     cp $(dirname $(realpath $0))/template.go $day_dir/main.go
 fi
-
-if [ -f $day_dir/input.txt ]; then
-    exit 0
+if [ ! -f $day_dir/input.txt ]; then
+    echo "Filled in automatically with actual problem input" > $day_dir/sample.txt
+fi
+if [ ! -f $day_dir/input.txt ]; then
+    echo "Filled in with sample input for each problem" > $day_dir/sample.txt
 fi
 
 # Validate & curl from adventofcode website
@@ -44,7 +46,9 @@ if [ ! -f $(dirname $(realpath $0))/.env ]; then
 fi
 source $(dirname $(realpath $0))/.env
 if [ -z "$AOC_SESSION_COOKIE" ]; then
-    echo "AOC_SESSION_COOKIE is not set in env file, can't pull input"
+    echo "AOC_SESSION_COOKIE is not set in env file, unable to pull input"
     exit 1
 fi
+
 curl -s -b "session=$AOC_SESSION_COOKIE" https://adventofcode.com/$YEAR/day/$DAY/input > $day_dir/input.txt
+
