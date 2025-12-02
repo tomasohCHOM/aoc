@@ -36,7 +36,7 @@ func readInput(filename string) ([]string, error) {
 }
 
 func main() {
-	useSample := flag.Bool("use-sample", false, "Use sample.txt (manually filled in)")
+	useSample := flag.Bool("sample", false, "Use sample.txt (manually filled in)")
 	flag.Parse()
 	fileName := "input.txt"
 	if *useSample {
