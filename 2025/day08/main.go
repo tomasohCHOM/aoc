@@ -12,95 +12,89 @@ import (
 )
 
 type Distance struct {
-	Dist float64
-	I    int
-	J    int
-	P1   []int
-	P2   []int
+	Dist   float64
+	I, J   int
+	P1, P2 []int
 }
 
-func euclidean(p1, p2 []int) float64 {
-	sumSqDiff := 0.0
-	for i := range p1 {
-		diff := float64(p1[i] - p2[i])
-		sumSqDiff += diff * diff
+func parsePoint(s string) []int {
+	parts := strings.Split(s, ",")
+	p := make([]int, len(parts))
+	for i := range parts {
+		v, _ := strconv.Atoi(parts[i])
+		p[i] = v
 	}
-	return math.Sqrt(sumSqDiff)
+	return p
+}
+
+func euclidean(a, b []int) float64 {
+	sum := 0.0
+	for i := range a {
+		d := float64(a[i] - b[i])
+		sum += d * d
+	}
+	return math.Sqrt(sum)
+}
+
+func getDistances(points [][]int, includePoints bool) []Distance {
+	d := []Distance{}
+	N := len(points)
+	for i := range N {
+		for j := i + 1; j < N; j++ {
+			entry := Distance{
+				Dist: euclidean(points[i], points[j]),
+				I:    i,
+				J:    j,
+			}
+			if includePoints {
+				entry.P1 = points[i]
+				entry.P2 = points[j]
+			}
+			d = append(d, entry)
+		}
+	}
+	sort.Slice(d, func(a, b int) bool {
+		return d[a].Dist < d[b].Dist
+	})
+	return d
 }
 
 func part1(input []string) int {
-	distances := []Distance{}
-	for i := range input {
-		for j := i + 1; j < len(input); j++ {
-			ps1 := strings.Split(input[i], ",")
-			ps2 := strings.Split(input[j], ",")
-			p1, p2 := []int{}, []int{}
-			for co := range ps1 {
-				co1, _ := strconv.Atoi(ps1[co])
-				co2, _ := strconv.Atoi(ps2[co])
-				p1 = append(p1, co1)
-				p2 = append(p2, co2)
-			}
-			distances = append(distances, Distance{
-				Dist: euclidean(p1, p2),
-				I:    i,
-				J:    j,
-			})
-		}
-	}
-	sort.Slice(distances, func(i, j int) bool {
-		return distances[i].Dist < distances[j].Dist
-	})
-	uf := NewUnionFind(len(input))
-
-	for i := range input {
-		dist := distances[i]
-		uf.Union(dist.I, dist.J)
+	points := make([][]int, len(input))
+	for i, line := range input {
+		points[i] = parsePoint(line)
 	}
 
-	sizes := []int{}
-	for i := range input {
+	dists := getDistances(points, false)
+	uf := NewUnionFind(len(points))
+	for i := range points {
+		d := dists[i]
+		uf.Union(d.I, d.J)
+	}
+
+	var sizes []int
+	for i := range points {
 		if uf.Find(i) == i {
 			sizes = append(sizes, uf.GetSetSize(i))
 		}
 	}
-	sort.Slice(sizes, func(i, j int) bool {
-		return sizes[i] > sizes[j]
-	})
+
+	sort.Slice(sizes, func(a, b int) bool { return sizes[a] > sizes[b] })
 	return sizes[0] * sizes[1] * sizes[2]
 }
 
 func part2(input []string) int {
-	distances := []Distance{}
-	for i := range input {
-		for j := i + 1; j < len(input); j++ {
-			ps1 := strings.Split(input[i], ",")
-			ps2 := strings.Split(input[j], ",")
-			p1, p2 := []int{}, []int{}
-			for co := range ps1 {
-				co1, _ := strconv.Atoi(ps1[co])
-				co2, _ := strconv.Atoi(ps2[co])
-				p1 = append(p1, co1)
-				p2 = append(p2, co2)
-			}
-			distances = append(distances, Distance{
-				Dist: euclidean(p1, p2),
-				I:    i,
-				J:    j,
-				P1:   p1,
-				P2:   p2,
-			})
-		}
+	points := make([][]int, len(input))
+	for i, line := range input {
+		points[i] = parsePoint(line)
 	}
-	sort.Slice(distances, func(i, j int) bool {
-		return distances[i].Dist < distances[j].Dist
-	})
-	uf := NewUnionFind(len(input))
+	dists := getDistances(points, true)
+	uf := NewUnionFind(len(points))
+
 	last := []int{}
-	for i := range distances {
-		dist := distances[i]
-		if uf.Union(dist.I, dist.J) {
-			last = []int{dist.P1[0], dist.P2[0]}
+	for _, d := range dists {
+		if uf.Union(d.I, d.J) {
+			last = []int{d.P1[0], d.P2[0]}
 		}
 	}
 	return last[0] * last[1]
