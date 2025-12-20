@@ -30,7 +30,7 @@ fi
 
 # Create files if they don't exist
 if [ ! -f $day_dir/main.go ]; then
-    cp $(dirname $(realpath $0))/template.go $day_dir/main.go
+    cp $(dirname $(realpath $0))/templates/template.go $day_dir/main.go
 fi
 if [ ! -f $day_dir/input.txt ]; then
     echo "Filled in automatically with actual problem input" > $day_dir/sample.txt
