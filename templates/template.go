@@ -7,32 +7,34 @@ import (
 	"os"
 )
 
-func part1(input []string) int {
+func part1(input any) int {
 	return 0
 }
 
-func part2(input []string) int {
+func part2(input any) int {
 	return 0
 }
 
-func readInput(filename string) ([]string, error) {
+func parseInput(filename string) (any, error) {
 	file, err := os.Open(filename)
 	if err != nil {
 		return nil, err
 	}
 	defer file.Close()
 
-	var lines []string
+	var parsed []string
 	scanner := bufio.NewScanner(file)
+
+	// Use any parsing method here
 	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
+		parsed = append(parsed, scanner.Text())
 	}
 
 	if err := scanner.Err(); err != nil {
 		return nil, err
 	}
 
-	return lines, nil
+	return parsed, nil
 }
 
 func main() {
@@ -43,7 +45,7 @@ func main() {
 		fmt.Println("USING SAMPLE INPUT FILE")
 		fileName = "sample.txt"
 	}
-	input, err := readInput(fileName)
+	input, err := parseInput(fileName)
 	if err != nil {
 		fmt.Println("Error reading input:", err)
 		return
