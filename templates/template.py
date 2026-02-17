@@ -23,7 +23,7 @@ if __name__ == "__main__":
         print("USING SAMPLE INPUT FILE")
         input_file = "sample.txt"
 
-    parsed_input = None  # Use some parsing method here
+    parsed_input = None  # Use any parsing method here
 
     print("Part 1:", part1(parsed_input))
     print("Part 2:", part2(parsed_input))
