@@ -14,8 +14,11 @@ while [[ $# -gt 0 ]]; do
         --go)
             LANG="go"
             ;;
+        --zig)
+            LANG="zig"
+            ;;
         *)
-            echo "Unknown option: $1"
+            echo "No template for language: $1"
             exit 1
             ;;
     esac
@@ -37,33 +40,21 @@ fi
 
 SCRIPT_DIR="$(dirname "$(realpath "$0")")"
 DAY_PADDED=$(printf "%02d" "$DAY")
-day_dir="$SCRIPT_DIR/$YEAR/day$DAY_PADDED"
+DAY_DIR="$SCRIPT_DIR/$YEAR/day$DAY_PADDED"
 
-mkdir -p "$day_dir"
+mkdir -p "$DAY_DIR"
 
-case "$LANG" in
-    go)
-        TEMPLATE="$SCRIPT_DIR/templates/template.go"
-        TARGET="$day_dir/main.go"
-        ;;
-    python)
-        TEMPLATE="$SCRIPT_DIR/templates/template.py"
-        TARGET="$day_dir/main.py"
-        ;;
-    *)
-        echo "Unsupported language: $LANG"
-        exit 1
-        ;;
-esac
+TEMPLATE="$SCRIPT_DIR/templates/template.$LANG"
+TARGET="$DAY_DIR/main.$LANG"
 
 if [ ! -f "$TARGET" ]; then
     cp "$TEMPLATE" "$TARGET"
 fi
-if [ ! -f "$day_dir/input.txt" ]; then
-    touch "$day_dir/input.txt"
+if [ ! -f "$DAY_DIR/input.txt" ]; then
+    touch "$DAY_DIR/input.txt"
 fi
-if [ ! -f "$day_dir/sample.txt" ]; then
-    echo "Filled in with sample input for each problem" > "$day_dir/sample.txt"
+if [ ! -f "$DAY_DIR/sample.txt" ]; then
+    echo "Filled in with sample input for each problem" > "$DAY_DIR/sample.txt"
 fi
 
 if [ ! -f "$SCRIPT_DIR/.env" ]; then
@@ -79,5 +70,5 @@ fi
 
 curl -s -b "session=$AOC_SESSION_COOKIE" \
     "https://adventofcode.com/$YEAR/day/$DAY/input" \
-    > "$day_dir/input.txt"
+    > "$DAY_DIR/input.txt"
 
