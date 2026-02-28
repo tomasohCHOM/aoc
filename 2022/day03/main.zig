@@ -8,22 +8,52 @@ fn priority(c: u8) u8 {
     };
 }
 
-fn part1(reader: *std.Io.Reader, allocator: std.mem.Allocator) !u32 {
+fn part1(input: []u8) u32 {
     var output: u32 = 0;
-    while (try reader.takeDelimiter('\n')) |line| {
+    var it = std.mem.splitScalar(u8, input, '\n');
+
+    while (it.next()) |line| {
         const len = line.len;
         const left = line[0 .. len / 2];
         const right = line[len / 2 ..];
-        var map: std.AutoHashMap(u8, void) = .init(allocator);
+        var seen: [53]u1 = [_]u1{0} ** 53;
 
-        for (left) |c| try map.put(c, {});
+        for (left) |c| seen[priority(c)] = 1;
         for (right) |c| {
-            if (map.contains(c)) {
+            if (seen[priority(c)] == 1) {
                 output += priority(c);
                 break;
             }
         }
-        map.deinit();
+    }
+    return output;
+}
+
+fn part2(input: []u8) u32 {
+    var it = std.mem.splitScalar(u8, input, '\n');
+    var seen: [53]u2 = [_]u2{0} ** 53;
+
+    var curr_group: u32 = 0;
+    var output: u32 = 0;
+
+    while (it.next()) |line| {
+        for (line) |c| {
+            if (seen[priority(c)] == curr_group) {
+                const new_val = seen[priority(c)] + 1;
+                if (new_val == 3) {
+                    output += priority(c);
+                    break;
+                }
+                seen[priority(c)] = new_val;
+            } else if (curr_group == 0) {
+                seen[priority(c)] = 1;
+            }
+        }
+        curr_group += 1;
+        if (curr_group == 3) {
+            seen = [_]u2{0} ** 53;
+            curr_group = 0;
+        }
     }
     return output;
 }
@@ -55,6 +85,13 @@ pub fn main(init: std.process.Init) !void {
     var file_reader = file.reader(io, &read_buf);
     const reader = &file_reader.interface;
 
-    std.debug.print("Part 1: {d}\n", .{try part1(reader, allocator)});
-    // std.debug.print("Part 2: {d}\n", .{part2(0)});
+    const stat = try file.stat(io);
+    const size = stat.size;
+
+    const input = try allocator.alloc(u8, size);
+    defer allocator.free(input);
+    _ = try reader.readSliceAll(input);
+
+    std.debug.print("Part 1: {d}\n", .{part1(input)});
+    std.debug.print("Part 2: {d}\n", .{part2(input)});
 }
