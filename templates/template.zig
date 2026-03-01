@@ -9,6 +9,10 @@ fn part2(_: anytype) u32 {
 }
 
 pub fn main(init: std.process.Init) !void {
+    var gpa: std.heap.DebugAllocator(.{}) = .init;
+    const allocator = gpa.allocator();
+    defer _ = gpa.deinit();
+
     const io = init.io;
     var args = init.minimal.args.iterate();
     _ = args.skip();
@@ -31,11 +35,19 @@ pub fn main(init: std.process.Init) !void {
     var file_reader = file.reader(io, &read_buf);
     const reader = &file_reader.interface;
 
-    // Use any parsing method here
-    while (try reader.takeDelimiter('\n')) |_| {
-        // Placeholder
+    const stat = try file.stat(io);
+    const size = stat.size;
+
+    const input = try allocator.alloc(u8, size);
+    defer allocator.free(input);
+    _ = try reader.readSliceAll(input);
+
+    var it = std.mem.splitScalar(u8, input, '\n');
+    // Use any parsing method here (or do it in the solution functions)
+    while (it.next()) |line| {
+        std.debug.print("{s}\n", .{line});
     }
 
-    std.debug.print("Part 1: {d}\n", .{part1(0)});
-    std.debug.print("Part 2: {d}\n", .{part2(0)});
+    std.debug.print("Part 1: {d}\n", .{part1(input)});
+    std.debug.print("Part 2: {d}\n", .{part2(input)});
 }
