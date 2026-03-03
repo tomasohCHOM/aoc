@@ -1,26 +1,47 @@
 const std = @import("std");
 
-fn part1(allocator: std.mem.Allocator, drawing: []const u8, moves: []const u8) !u32 {
+fn part1(allocator: std.mem.Allocator, drawing: []const u8, moves: []const u8) ![]u8 {
     const stacks = try parseStacks(allocator, drawing);
     defer freeStacks(allocator, stacks);
-
     var instructions = try parseInstructions(allocator, moves);
     defer instructions.deinit(allocator);
 
-    std.debug.print("{any}\n{any}\n", .{ stacks, instructions });
+    for (instructions.items) |move| {
+        for (0..move.count) |_| {
+            const moved = stacks[move.from].pop().?;
+            try stacks[move.to].append(allocator, moved);
+        }
+    }
+    var output: []u8 = try allocator.alloc(u8, stacks.len);
+    for (stacks, 0..stacks.len) |s, i| {
+        output[i] = s.items[s.items.len - 1];
+    }
 
-    const output = 0;
     return output;
 }
 
-fn part2(allocator: std.mem.Allocator, drawing: []const u8, moves: []const u8) !u32 {
+fn part2(allocator: std.mem.Allocator, drawing: []const u8, moves: []const u8) ![]u8 {
     const stacks = try parseStacks(allocator, drawing);
     defer freeStacks(allocator, stacks);
-
     var instructions = try parseInstructions(allocator, moves);
     defer instructions.deinit(allocator);
 
-    const output = 0;
+    for (instructions.items) |move| {
+        var temp: std.ArrayList(u8) = .empty;
+        defer temp.deinit(allocator);
+
+        for (0..move.count) |_| {
+            try temp.append(allocator, stacks[move.from].pop().?);
+        }
+        while (temp.items.len > 0) {
+            try stacks[move.to].append(allocator, temp.pop().?);
+        }
+    }
+    var output: []u8 = try allocator.alloc(u8, stacks.len);
+    for (stacks, 0..stacks.len) |s, i| {
+        output[i] = s.items[s.items.len - 1];
+    }
+
     return output;
 }
 
@@ -136,6 +157,11 @@ pub fn main(init: std.process.Init) !void {
     const drawing = it.next().?;
     const moves = it.next().?;
 
-    std.debug.print("Part 1: {d}\n", .{try part1(allocator, drawing, moves)});
-    std.debug.print("Part 2: {d}\n", .{try part2(allocator, drawing, moves)});
+    const result1 = try part1(allocator, drawing, moves);
+    defer allocator.free(result1);
+    const result2 = try part2(allocator, drawing, moves);
+    defer allocator.free(result2);
+
+    std.debug.print("Part 1: {s}\n", .{result1});
+    std.debug.print("Part 2: {s}\n", .{result2});
 }
