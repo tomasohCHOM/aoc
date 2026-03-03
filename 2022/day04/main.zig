@@ -62,7 +62,6 @@ pub fn main(init: std.process.Init) !void {
     var parsed_input: std.ArrayList([4]u8) = .empty;
     defer parsed_input.deinit(allocator);
 
-    // Use any parsing method here (or do it in the solution functions)
     while (it.next()) |line| {
         if (line.len == 0) break;
         var lineIt = std.mem.splitScalar(u8, line, ',');
