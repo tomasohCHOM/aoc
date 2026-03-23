@@ -1,13 +1,5 @@
 const std = @import("std");
 
-fn part1(_: anytype) u32 {
-    return 0;
-}
-
-fn part2(_: anytype) u32 {
-    return 0;
-}
-
 pub fn main(init: std.process.Init) !void {
     var gpa: std.heap.DebugAllocator(.{}) = .init;
     const allocator = gpa.allocator();
@@ -43,11 +35,63 @@ pub fn main(init: std.process.Init) !void {
     _ = try reader.readSliceAll(input);
 
     var it = std.mem.splitScalar(u8, input, '\n');
-    // Use any parsing method here (or do it in the solution functions)
+    var stack: std.ArrayList([]const u8) = .empty;
+    defer stack.deinit(allocator);
+
+    var sizes: std.StringHashMap(u64) = .init(allocator);
+    defer {
+        var it_cleanup = sizes.iterator();
+        while (it_cleanup.next()) |entry| {
+            allocator.free(entry.key_ptr.*);
+        }
+        sizes.deinit();
+    }
+
     while (it.next()) |line| {
+        if (line.len == 0) break;
+
+        if (std.mem.startsWith(u8, line, "$ cd")) {
+            const idx = std.mem.lastIndexOfScalar(u8, line, ' ') orelse unreachable;
+            const target = line[idx + 1 ..];
+            if (std.mem.eql(u8, target, "/")) {
+                stack.clearRetainingCapacity();
+                try stack.append(allocator, "/");
+            } else if (std.mem.eql(u8, target, "")) {
+                _ = stack.pop();
+            } else {
+                try stack.append(allocator, target);
+            }
+        } else if (std.ascii.isDigit(line[0])) {
+            var parts = std.mem.splitScalar(u8, line, ' ');
+            const size_str = parts.next().?;
+            const file_size = try std.fmt.parseInt(u64, size_str, 10);
+
+            var path_buf: std.ArrayList(u8) = .empty;
+            defer path_buf.deinit(allocator);
+
+            for (stack.items, 0..) |dir, i| {
+                if (i == 0) {
+                    try path_buf.appendSlice(allocator, "/");
+                } else {
+                    if (!std.mem.eql(u8, path_buf.items, "/")) {
+                        try path_buf.append(allocator, '/');
+                    }
+                    try path_buf.appendSlice(allocator, dir);
+                }
+                var entry = try sizes.getOrPut(path_buf.items);
+
+                if (!entry.found_existing) {
+                    entry.key_ptr.* = try allocator.dupe(u8, path_buf.items);
+                    entry.value_ptr.* = 0;
+                }
+
+                entry.value_ptr.* += file_size;
+            }
+        }
+
         std.debug.print("{s}\n", .{line});
     }
 
-    std.debug.print("Part 1: {d}\n", .{part1(input)});
-    std.debug.print("Part 2: {d}\n", .{part2(input)});
+    // std.debug.print("Part 1: {d}\n", .{part1});
+    // std.debug.print("Part 2: {d}\n", .{part2});
 }
