@@ -56,7 +56,7 @@ pub fn main(init: std.process.Init) !void {
             if (std.mem.eql(u8, target, "/")) {
                 stack.clearRetainingCapacity();
                 try stack.append(allocator, "/");
-            } else if (std.mem.eql(u8, target, "")) {
+            } else if (std.mem.eql(u8, target, "..")) {
                 _ = stack.pop();
             } else {
                 try stack.append(allocator, target);
@@ -88,10 +88,29 @@ pub fn main(init: std.process.Init) !void {
                 entry.value_ptr.* += file_size;
             }
         }
-
-        std.debug.print("{s}\n", .{line});
     }
 
-    // std.debug.print("Part 1: {d}\n", .{part1});
-    // std.debug.print("Part 2: {d}\n", .{part2});
+    var part1: u64 = 0;
+    var sizes_it = sizes.iterator();
+    while (sizes_it.next()) |entry| {
+        if (entry.value_ptr.* <= 100_000) {
+            part1 += entry.value_ptr.*;
+        }
+    }
+
+    const total_space: u64 = 70_000_000;
+    const needed_space: u64 = 30_000_000;
+    const free_space = total_space - sizes.get("/").?;
+    const delete_min = needed_space - free_space;
+
+    var part2: u64 = std.math.maxInt(u64);
+    sizes_it = sizes.iterator();
+    while (sizes_it.next()) |entry| {
+        if (entry.value_ptr.* >= delete_min) {
+            part2 = @min(part2, entry.value_ptr.*);
+        }
+    }
+
+    std.debug.print("Part 1: {d}\n", .{part1});
+    std.debug.print("Part 2: {d}\n", .{part2});
 }
